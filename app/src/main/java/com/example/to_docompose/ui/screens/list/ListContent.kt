@@ -19,44 +19,78 @@ import com.example.to_docompose.data.models.Priority
 import com.example.to_docompose.data.models.ToDoTask
 import com.example.to_docompose.ui.theme.*
 import com.example.to_docompose.util.RequestState
+import com.example.to_docompose.util.SearchAppBarState
 
 @ExperimentalMaterialApi
 @Composable
 fun ListContent(
-    tasks: RequestState<List<ToDoTask>>,
+    allTasks: RequestState<List<ToDoTask>>,
+    searchedTasks:  RequestState<List<ToDoTask>>,
+    searchAppBarState: SearchAppBarState,
     navigateToTaskScreen: (taskId: Int) -> Unit
 ) {
-  if(tasks is RequestState.Success){
-      if(tasks.data.isEmpty()){
-          EmptyContent()
-      }else{
-          DisplayTasks(
-              tasks = tasks.data,
-              navigateToTaskScreen = navigateToTaskScreen
-          )
-      }
-  }else if(tasks is RequestState.Loading){
+    if(searchAppBarState == SearchAppBarState.TRIGGERED){
 
-  }
+
+        if (searchedTasks is RequestState.Success) {
+            HandleListContext(
+                tasks = searchedTasks.data,
+                navigateToTaskScreen = navigateToTaskScreen
+            )
+
+        } else if (searchedTasks is RequestState.Loading) {
+
+        }
+
+
+    }else if(allTasks is RequestState.Success){
+
+            HandleListContext(
+                tasks = allTasks.data,
+                navigateToTaskScreen = navigateToTaskScreen
+            )
+
+
+
+    }
+
 }
 
+
+@ExperimentalMaterialApi
+@Composable
+fun HandleListContext(
+    tasks: List<ToDoTask>,
+    navigateToTaskScreen: (taskId: Int) -> Unit
+) {
+
+    if (tasks.isEmpty()) {
+        EmptyContent()
+    } else {
+        DisplayTasks(
+            tasks = tasks,
+            navigateToTaskScreen = navigateToTaskScreen
+        )
+    }
+
+}
 
 @ExperimentalMaterialApi
 @Composable
 fun DisplayTasks(
     tasks: List<ToDoTask>,
     navigateToTaskScreen: (taskId: Int) -> Unit
-){
-    LazyColumn(){
+) {
+    LazyColumn() {
         items(
-            items=tasks,
-            key= { task ->
+            items = tasks,
+            key = { task ->
                 task.id
             }
-        ){ task->
+        ) { task ->
             TaskItem(
                 todoTask = task,
-                navigateToTaskScreen =  navigateToTaskScreen
+                navigateToTaskScreen = navigateToTaskScreen
             )
         }
     }
@@ -85,7 +119,7 @@ fun TaskItem(
             Row() {
                 Text(
                     modifier = Modifier.weight(8f),
-                    text= todoTask.title,
+                    text = todoTask.title,
                     color = MaterialTheme.colors.taskItemTextColor,
                     style = MaterialTheme.typography.h5,
                     fontWeight = FontWeight.Bold,
@@ -112,14 +146,14 @@ fun TaskItem(
 
             }
             Text(
-                modifier =Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 text = todoTask.description,
-                color= MaterialTheme.colors.taskItemTextColor ,
+                color = MaterialTheme.colors.taskItemTextColor,
                 style = MaterialTheme.typography.subtitle1,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
 
-            )
+                )
 
         }
 
@@ -129,7 +163,7 @@ fun TaskItem(
 @ExperimentalMaterialApi
 @Preview
 @Composable
-fun TaskItemPreview(){
+fun TaskItemPreview() {
     TaskItem(
         todoTask = ToDoTask(
             id = 1,

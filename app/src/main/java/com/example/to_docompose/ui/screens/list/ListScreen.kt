@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.to_docompose.R
+import com.example.to_docompose.data.models.ToDoTask
 import com.example.to_docompose.ui.theme.fabBackgroundColor
 import com.example.to_docompose.ui.viewmodels.SharedViewModel
 import com.example.to_docompose.util.Action
@@ -24,12 +25,18 @@ fun ListScreen(
 ) {
     LaunchedEffect(key1 = true) {
         sharedViewModel.getAllTask()
+        sharedViewModel.readSortState()
     }
 
     val action by sharedViewModel.action
 
     val allTasks by sharedViewModel.allTasks.collectAsState()
     val searchedTasks by sharedViewModel.searchedTasks.collectAsState()
+
+    val sortState by sharedViewModel.sortState.collectAsState()
+    val lowPriorityTasks  by sharedViewModel.lowPriorityTasks.collectAsState()
+    val highPriorityTasks by sharedViewModel.highPriorityTasks.collectAsState()
+
 
     val searchAppBarState: SearchAppBarState by sharedViewModel.searchAppBarState
 
@@ -67,7 +74,14 @@ fun ListScreen(
             ListContent(
                 allTasks = allTasks,
                 searchedTasks = searchedTasks,
+                lowPriorityTasks = lowPriorityTasks,
+                highPriorityTasks= highPriorityTasks,
+                sortState = sortState,
                 searchAppBarState = searchAppBarState,
+                onSwipeToDelete =  { action, task ->
+                                sharedViewModel.action.value = action
+                    sharedViewModel.updateTaskFields(selectedTask = task, )
+                },
                 navigateToTaskScreen = navigateToTaskScreen
 
             )
